@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isBootstrappedAdmin() { return isSignedIn() && request.auth.token.email == 'utkarshaghanwat9@gmail.com'; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    // Auth tokens never contain roles; must look up in trusted doc
+    function getProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      let profileDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return isSignedIn() && (
+        isBootstrappedAdmin() || 
+        (profileDoc.exists() && profileDoc.data.get('role', '') == role)
+      );
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Validation Blueprints ---
+    function isValidUser(data) {
+      return data.uid == request.auth.uid 
+        && data.email is string && data.email.size() <= 200
+        && data.role in ['student', 'teacher', 'mis']
+        && (!('mobile' in data) || (data.mobile is string && data.mobile.size() <= 20));
+    }
+
+    function isValidGPAEntry(data) {
+      return data.uid is string && data.uid.size() <= 128
+        && data.semester is string && data.semester.size() <= 50
+        && data.sgpa is number && data.sgpa >= 0 && data.sgpa <= 10
+        && data.subjects is list && data.subjects.size() <= 50;
+    }
+
+    // --- Collection Routes ---
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) && (
+        // Action: Update Profile (Immutable role/uid/email)
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'mobile', 'abcId', 'registrationNo', 'department', 'createdAt'])
+      );
+    }
+
+    match /gpa_history/{entryId} {
+      // Single document access
+      allow get: if isSignedIn() && (
+        isOwner(resource.data.uid) || 
+        (resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '____')) ||
+        hasRole('teacher') || 
+        hasRole('mis')
+      );
+
+      // Collection queries
+      allow list: if isSignedIn() && (
+        isOwner(resource.data.uid) || 
+        (resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '____')) ||
+        isBootstrappedAdmin() ||
+        hasRole('teacher') || 
+        hasRole('mis')
+      );
+      
+      allow create: if isSignedIn() && isValidId(entryId) && (
+        (isOwner(incoming().uid) && isValidGPAEntry(incoming())) ||
+        (hasRole('mis') && isValidGPAEntry(incoming())) ||
+        (hasRole('teacher') && isValidGPAEntry(incoming()))
+      );
+      
+      allow update: if isSignedIn() && (
+        hasRole('mis') || 
+        (isOwner(existing().uid) && isValidGPAEntry(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['semester', 'examination', 'subjects', 'sgpa', 'cgpa', 'totalEgp', 'totalMarks', 'maxMarks', 'percentage', 'backlogStatus', 'fileName', 'calculatedSgpa', 'uploadedBy', 'uploadedByName']))
+      );
+      
+      allow delete: if isSignedIn() && (isOwner(resource.data.uid) || hasRole('mis'));
+    }
+
+    match /audit_logs/{logId} {
+      allow get: if hasRole('mis');
+      allow list: if hasRole('mis');
+      allow write: if hasRole('mis') || hasRole('teacher');
+    }
+  }
+}

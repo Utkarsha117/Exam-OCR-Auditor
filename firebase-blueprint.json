@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a student, teacher, or MIS faculty member.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "teacher", "mis"] },
+        "mobile": { "type": "string" },
+        "abcId": { "type": "string" },
+        "registrationNo": { "type": "string" },
+        "department": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "GPAEntry": {
+      "title": "GPA Entry",
+      "description": "A single academic record for a semester.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "semester": { "type": "string" },
+        "examination": { "type": "string" },
+        "sgpa": { "type": "number" },
+        "cgpa": { "type": "number" },
+        "totalEgp": { "type": "number" },
+        "totalMarks": { "type": "number" },
+        "maxMarks": { "type": "number" },
+        "percentage": { "type": "number" },
+        "verificationStatus": { "type": "string", "enum": ["verified", "discrepancy", "pending"] },
+        "backlogStatus": { "type": "boolean" },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "name": { "type": "string" },
+              "credits": { "type": "number" },
+              "grade": { "type": "string" },
+              "points": { "type": "number" }
+            }
+          }
+        },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "fileName": { "type": "string" }
+      },
+      "required": ["uid", "semester", "sgpa"]
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Tracks administrative actions.",
+      "type": "object",
+      "properties": {
+        "facultyId": { "type": "string" },
+        "facultyName": { "type": "string" },
+        "action": { "type": "string" },
+        "fileName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["facultyId", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles restricted by role and ownership."
+    },
+    "/gpa_history/{entryId}": {
+      "schema": "GPAEntry",
+      "description": "Academic records. Students see their own; Teachers and MIS see all."
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Restricted logs for MIS faculty."
+    }
+  }
+}
