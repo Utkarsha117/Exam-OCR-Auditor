@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const ai = new GoogleGenAI({ apiKey: const apiKey = import.meta.env.VITE_GEMINI_API_KEY; || "" });
 
 export async function parseGradeCard(base64Data: string, mimeType: string, pageLimit: number = 1) {
   const prompt = `
