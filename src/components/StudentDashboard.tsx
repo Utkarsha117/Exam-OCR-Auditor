@@ -4,7 +4,7 @@ import { collection, query, where, orderBy, onSnapshot, doc, deleteDoc, or, upda
 import { OperationType, handleFirestoreError } from '../lib/errorHandlers';
 import { db } from '../lib/firebase';
 import { GPAEntry } from '../types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend } from 'recharts';
 import { TrendingUp, Award, Clock, Trash2, FileDown, Download, X, BarChart3, PieChart as PieChartIcon, Search, ShieldCheck } from 'lucide-react';
 import ResultUploader from './ResultUploader';
 import { motion } from 'motion/react';
@@ -16,6 +16,7 @@ import { useTheme } from '../contexts/ThemeContext';
 export default function StudentDashboard() {
   const { user, profile } = useAuth();
   const { theme } = useTheme();
+  const isLight = ['light', 'safe', 'swiss', 'mono'].includes(theme);
   const [history, setHistory] = useState<GPAEntry[]>([]);
   const [showUploader, setShowUploader] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<GPAEntry | null>(null);
@@ -96,12 +97,12 @@ export default function StudentDashboard() {
     const doc = new jsPDF();
     doc.setFontSize(22);
     doc.setTextColor(5, 5, 5);
-    doc.text("GPA Genie: Academic Dossier", 20, 25);
+    doc.text("GPA Genie: Official Dossier", 20, 25);
     
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text(`Official Academic Summary for ${profile?.name}`, 20, 32);
-    doc.text(`Range: ${semFilter.from || 'Start'} to ${semFilter.to || 'Latest'}`, 20, 37);
+    doc.text(`Session: 2023-24 | Student GPA Genie`, 20, 37);
 
     let y = 55;
     doc.setDrawColor(200, 200, 200);
@@ -131,14 +132,14 @@ export default function StudentDashboard() {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-[#001D3D] rounded-xl flex items-center justify-center p-2 text-white shadow-xl">
                    <div className="flex flex-col items-center leading-none">
-                      <span className="text-[10px] font-bold">GET</span>
+                      <span className="text-[13px] font-bold">GET</span>
                       <span className="text-sm font-black">SAFE</span>
-                      <span className="text-[10px] font-bold text-[#00a6bb]">ONLINE</span>
+                      <span className="text-[13px] font-bold text-[#00a6bb]">ONLINE</span>
                    </div>
                 </div>
                 <div className="hidden lg:flex gap-6">
                   {['HOME', 'BLOG', 'NEWS', 'VIDEOS', 'GLOSSARY', 'CONTACT US'].map(item => (
-                    <span key={item} className="text-[11px] font-extra-bold text-[#001D3D]/50 hover:text-[#001D3D] cursor-pointer transition-colors uppercase tracking-widest">{item}</span>
+                    <span key={item} className="text-[13px] font-extra-bold text-[#001D3D]/50 hover:text-[#001D3D] cursor-pointer transition-colors uppercase tracking-widest">{item}</span>
                   ))}
                 </div>
               </div>
@@ -163,33 +164,33 @@ export default function StudentDashboard() {
               </div>
 
               <div className="relative z-10">
-                <nav className="flex gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-10">
+                <nav className="flex gap-2 text-[13px] font-bold text-slate-400 uppercase tracking-widest mb-10">
                   <span>HOME</span>
                   <span>›</span>
                 </nav>
 
                 <h1 className="text-6xl lg:text-8xl font-black tracking-tighter mb-12 text-[#001D3D]">
-                  Check a <br/> <span className="text-[#001D3D]">website</span>
+                  Student <br/> <span className="text-[#001D3D]">GPA Genie</span>
                 </h1>
                 
-                <p className="text-lg font-bold text-[#001D3D]/40 mb-10 max-w-xl">To begin, type or paste a website address here.</p>
+                <p className="text-lg font-bold text-[#001D3D]/40 mb-10 max-w-xl">Unified digital repository for academic excellence and verified records.</p>
 
                 <div className="flex flex-col md:flex-row items-stretch bg-[#001D3D] rounded-3xl overflow-hidden shadow-2xl p-4 gap-4">
                   <div className="flex-1 flex items-center px-6 gap-4">
-                    <span className="text-2xl font-bold text-white opacity-60">https://</span>
+                    <span className="text-2xl font-bold text-white opacity-60">ID:</span>
                     <input 
                       type="text" 
-                      placeholder="Enter your registration URL..." 
+                      placeholder="Enter your academic registration ID..." 
                       className="w-full bg-white rounded-full border-none focus:ring-0 text-slate-900 font-medium placeholder:text-slate-300 py-5 px-10 text-xl shadow-inner"
                     />
                   </div>
                   <button className="bg-black hover:bg-slate-900 text-white px-12 py-5 rounded-full font-bold text-lg transition-all active:scale-95 shadow-xl whitespace-nowrap">
-                    Check this site
+                    Search Hub
                   </button>
                 </div>
                 
-                <p className="mt-8 text-[11px] text-slate-400 tracking-tight leading-relaxed max-w-2xl">
-                  * Clicking "Check this site" will verify your academic records against the central registry. No information that can identify you personally is transferred, collected, or stored.
+                <p className="mt-8 text-[13px] text-slate-400 tracking-tight leading-relaxed max-w-2xl">
+                  * Clicking "Search Hub" will verify your academic records against the central registry. No information that can identify you personally is transferred, collected, or stored.
                 </p>
               </div>
             </div>
@@ -205,14 +206,14 @@ export default function StudentDashboard() {
                    <p className="text-sm font-bold uppercase tracking-widest text-black/40">Student Id: {profile?.registrationNo || 'UNASSIGNED'}</p>
                  </div>
                  <div className="mt-8 md:mt-0 px-6 py-3 bg-red-600 text-white font-black uppercase italic text-2xl tracking-tighter -rotate-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                   Live Vault 2024
+                   GPA Genie 2023-24
                  </div>
               </div>
             ) : theme === 'mono' ? (
               <div className="w-full bg-white border border-slate-200 p-8 rounded-xl mb-4 font-mono shadow-sm">
                  <div className="flex items-center gap-2 text-[#005495] mb-2">
                    <ShieldCheck size={16} />
-                   <span className="text-[10px] font-bold uppercase tracking-widest">Authenticated Session</span>
+                   <span className="text-[13px] font-bold uppercase tracking-widest">Authenticated Session</span>
                  </div>
                  <h1 className="text-2xl font-bold text-slate-900 mb-1">{profile?.name}</h1>
                  <p className="text-xs text-slate-500 uppercase tracking-widest">{profile?.registrationNo ? `ID: ${profile.registrationNo}` : 'REGISTRATION PENDING'}</p>
@@ -229,9 +230,15 @@ export default function StudentDashboard() {
               </div>
             ) : (
               <div>
-                <h2 className="text-2xl font-black uppercase text-white">{profile?.name}</h2>
+                <h2 className={cn(
+                  "text-2xl font-black uppercase",
+                  isLight ? "text-slate-900" : "text-white"
+                )}>{profile?.name}</h2>
                 <div className="flex items-center gap-4 mt-1">
-                  <span className="text-[10px] text-white/30 uppercase tracking-widest font-mono">
+                  <span className={cn(
+                    "text-[13px] uppercase tracking-widest font-mono",
+                    isLight ? "text-slate-500" : "text-white/30"
+                  )}>
                     Registration Number: <span className="text-brand-primary font-bold">{profile?.registrationNo || 'Not Set'}</span>
                   </span>
                   {!profile?.registrationNo && (
@@ -246,7 +253,7 @@ export default function StudentDashboard() {
                           });
                         }
                       }}
-                      className="text-[9px] font-bold text-brand-primary hover:underline uppercase tracking-widest"
+                      className="text-[13px] font-bold text-brand-primary hover:underline uppercase tracking-widest"
                     >
                       [Set Now]
                     </button>
@@ -266,12 +273,12 @@ export default function StudentDashboard() {
             "p-6 rounded-2xl border transition-all duration-500",
             theme === 'cyber' ? "glass-card border-white/5" : 
             theme === 'safe' ? "bg-white border-slate-200 shadow-sm hover:shadow-md" :
-            "bg-brand-surface border-white/5 shadow-xl"
+            isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5 shadow-xl"
           )}
         >
           <p className={cn(
-            "text-[10px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
-            theme === 'safe' ? "text-slate-400" : "text-white/40"
+            "text-[13px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
+            isLight ? "text-slate-400" : "text-white/40"
           )}>
             <Award size={10} className="text-blue-400" />
             Current CGPA
@@ -279,9 +286,9 @@ export default function StudentDashboard() {
           <div className="flex items-baseline gap-2">
             <p className={cn(
               "text-4xl font-black tracking-tighter",
-              theme === 'safe' ? "text-[#001D3D]" : "text-blue-400"
+              isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-blue-400"
             )}>{latest?.cgpa || '0.00'}</p>
-            <span className="text-[10px] text-emerald-600 font-black uppercase tracking-tighter">↑ Top 15%</span>
+            <span className="text-[13px] text-emerald-600 font-black uppercase tracking-tighter">↑ Top 15%</span>
           </div>
         </motion.div>
 
@@ -291,23 +298,23 @@ export default function StudentDashboard() {
             "p-6 rounded-2xl border transition-all duration-500",
             theme === 'cyber' ? "glass-card border-white/5" : 
             theme === 'safe' ? "bg-white border-slate-200 shadow-sm hover:shadow-md" :
-            "bg-brand-surface border-white/5 shadow-xl"
+            isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5 shadow-xl"
           )}
         >
           <p className={cn(
-            "text-[10px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
-            theme === 'safe' ? "text-slate-400" : "text-white/40"
+            "text-[13px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
+            isLight ? "text-slate-400" : "text-white/40"
           )}>
             <TrendingUp size={10} className="text-emerald-400" />
             Average SGPA
           </p>
           <p className={cn(
             "text-4xl font-black tracking-tighter",
-            theme === 'safe' ? "text-[#001D3D]" : "text-emerald-400"
+            isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-emerald-400"
           )}>{avgSgpa}</p>
           <p className={cn(
-            "text-[10px] mt-2 font-bold uppercase tracking-widest",
-            theme === 'safe' ? "text-[#001D3D]/30" : "text-white/20"
+            "text-[13px] mt-2 font-bold uppercase tracking-widest",
+            isLight ? "text-slate-400" : "text-white/20"
           )}>Verified across {history.length} semesters</p>
         </motion.div>
 
@@ -317,25 +324,25 @@ export default function StudentDashboard() {
             "p-6 rounded-2xl border transition-all duration-500",
             theme === 'cyber' ? "glass-card border-white/5" : 
             theme === 'safe' ? "bg-white border-slate-200 shadow-sm hover:shadow-md" :
-            "bg-brand-surface border-white/5 shadow-xl"
+            isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5 shadow-xl"
           )}
         >
           <p className={cn(
-            "text-[10px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
-            theme === 'safe' ? "text-slate-400" : "text-white/40"
+            "text-[13px] uppercase mb-1 tracking-widest leading-none flex items-center gap-2",
+            isLight ? "text-slate-400" : "text-white/40"
           )}>
-            <Clock size={10} className={theme === 'safe' ? "text-slate-300" : "text-white/40"} />
+            <Clock size={10} className={isLight ? "text-slate-300" : "text-white/40"} />
             Audit Records
           </p>
           <p className={cn(
             "text-4xl font-black tracking-tighter",
-            theme === 'safe' ? "text-[#001D3D]" : "text-white"
+            isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-white"
           )}>
             {history.filter(h => h.verificationStatus === 'verified').length} / {history.length}
           </p>
           <p className={cn(
-            "text-[10px] mt-2 font-bold uppercase tracking-widest",
-            theme === 'safe' ? "text-[#001D3D]/30" : "text-white/20"
+            "text-[13px] mt-2 font-bold uppercase tracking-widest",
+            isLight ? "text-slate-400" : "text-white/20"
           )}>Digital Audit Complete</p>
         </motion.div>
       </div>
@@ -345,29 +352,36 @@ export default function StudentDashboard() {
         <div className={cn(
           "lg:col-span-2 p-6 rounded-3xl border shadow-sm overflow-hidden relative transition-all duration-500",
           theme === 'safe' ? "bg-white/60 backdrop-blur-xl border-slate-200/50" :
-          theme === 'cyber' ? "glass-card border-white/5" : "bg-brand-surface border-white/5 shadow-xl"
+          theme === 'cyber' ? "glass-card border-white/5" : 
+          isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5 shadow-xl"
         )}>
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[80px] rounded-full"></div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 relative z-10 gap-4">
             <h3 className={cn(
-              "text-xs font-bold uppercase tracking-[0.2em]",
-              theme === 'safe' ? "text-[#003d73]" : "text-white"
+              "text-lg font-black uppercase tracking-[0.1em]",
+              isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-brand-primary"
             )}>Academic Trend Analysis</h3>
             
             <div className="flex items-center gap-2">
               <select 
                 value={semFilter.from}
                 onChange={(e) => setSemFilter({ ...semFilter, from: e.target.value })}
-                className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white/60 focus:outline-none"
+                className={cn(
+                  "border rounded-lg px-2 py-1 text-[13px] focus:outline-none transition-colors",
+                  isLight ? "bg-slate-50 border-slate-200 text-slate-700" : "bg-white/5 border-white/10 text-white/60"
+                )}
               >
                 <option value="">Start</option>
                 {uniqueSemesters.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-              <span className="text-white/20 text-[10px]">to</span>
+              <span className={isLight ? "text-slate-400 text-[13px]" : "text-white/20 text-[13px]"}>to</span>
               <select 
                 value={semFilter.to}
                 onChange={(e) => setSemFilter({ ...semFilter, to: e.target.value })}
-                className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white/60 focus:outline-none"
+                className={cn(
+                  "border rounded-lg px-2 py-1 text-[13px] focus:outline-none transition-colors",
+                  isLight ? "bg-slate-50 border-slate-200 text-slate-700" : "bg-white/5 border-white/10 text-white/60"
+                )}
               >
                 <option value="">End</option>
                 {uniqueSemesters.map(s => <option key={s} value={s}>{s}</option>)}
@@ -375,7 +389,12 @@ export default function StudentDashboard() {
 
               <button 
                 onClick={exportPDF}
-                className="text-[10px] font-bold flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors border border-white/5"
+                className={cn(
+                  "text-[10px] font-bold flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all border",
+                  isLight 
+                    ? "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200" 
+                    : "bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border-white/5"
+                )}
               >
                 <Download size={14} />
                 EXPORT
@@ -387,23 +406,44 @@ export default function StudentDashboard() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorSgpa" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor={theme === 'safe' ? "#00a6bb" : "#10b981"} stopOpacity={isLight ? 0.1 : 0.2}/>
+                    <stop offset="95%" stopColor={theme === 'safe' ? "#00a6bb" : "#10b981"} stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorCgpa" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={isLight ? 0.1 : 0.2}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'rgba(255,255,255,0.3)', fontWeight: 600}} />
-                <YAxis domain={[0, 10]} axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'rgba(255,255,255,0.3)', fontWeight: 600}} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0a0a0a', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
-                  itemStyle={{ fontSize: '10px' }}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)"} />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 13, fill: isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)', fontWeight: 700}} 
                 />
-                <Area type="monotone" name="SGPA" dataKey="sgpa" stroke="#10b981" fillOpacity={1} fill="url(#colorSgpa)" strokeWidth={2} dot={{ r: 3, fill: '#10b981', strokeWidth: 1, stroke: '#050505' }} />
-                <Area type="monotone" name="CGPA" dataKey="cgpa" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCgpa)" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 1, stroke: '#050505' }} />
+                <YAxis 
+                  domain={[0, 10]} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 13, fill: isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)', fontWeight: 700}} 
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: isLight ? '#ffffff' : '#0a0a0a', 
+                    borderRadius: '12px', 
+                    border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.1)', 
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+                  }}
+                  itemStyle={{ fontSize: '13px', fontWeight: 'bold' }}
+                />
+                <Legend 
+                  verticalAlign="top" 
+                  align="right" 
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: '13px', fontWeight: 'bold', paddingBottom: '10px' }}
+                />
+                <Area type="monotone" name="SGPA" dataKey="sgpa" stroke={theme === 'safe' ? "#00a6bb" : "#10b981"} fillOpacity={1} fill="url(#colorSgpa)" strokeWidth={2} dot={{ r: 3, fill: theme === 'safe' ? "#00a6bb" : "#10b981", strokeWidth: 1, stroke: isLight ? '#ffffff' : '#050505' }} />
+                <Area type="monotone" name="CGPA" dataKey="cgpa" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCgpa)" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 1, stroke: isLight ? '#ffffff' : '#050505' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -420,23 +460,27 @@ export default function StudentDashboard() {
           <div className={cn(
             "rounded-3xl border shadow-sm overflow-hidden transition-all duration-500",
             theme === 'safe' ? "bg-white/60 backdrop-blur-xl border-slate-200/50" :
-            theme === 'cyber' ? "glass-card border-white/5" : "bg-brand-surface border-white/5 shadow-2xl"
+            theme === 'cyber' ? "glass-card border-white/5" : 
+            isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5 shadow-2xl"
           )}>
-            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+            <div className={cn(
+              "p-6 border-b flex items-center justify-between",
+              isLight ? "border-slate-100" : "border-white/5"
+            )}>
               <h3 className={cn(
                 "text-xs font-bold uppercase tracking-[0.2em]",
-                theme === 'safe' ? "text-[#003d73]" : "text-white"
+                isLight ? (theme === 'safe' ? "text-[#003d73]" : "text-slate-900") : "text-white"
               )}>Verified Academic Records</h3>
               <span className={cn(
-                "text-[10px] uppercase italic font-mono tracking-tighter",
-                theme === 'safe' ? "text-slate-400" : "text-white/30"
+                "text-[13px] uppercase italic font-mono tracking-tighter",
+                isLight ? "text-slate-400" : "text-white/30"
               )}>{history.length} Entries found</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className={cn(
-                  "text-[10px] uppercase font-bold tracking-[0.1em]",
-                  theme === 'safe' ? "bg-slate-50 text-slate-400" : "bg-[#050505] text-white/30"
+                  "text-[13px] uppercase font-bold tracking-[0.1em]",
+                  isLight ? "bg-slate-50 text-slate-400" : "bg-[#050505] text-white/30"
                 )}>
                   <tr>
                     <th className="px-6 py-4">Semester</th>
@@ -447,24 +491,28 @@ export default function StudentDashboard() {
                     <th className="px-6 py-4">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-sm">
+                <tbody className={cn(
+                  "divide-y text-sm",
+                  isLight ? "divide-slate-100" : "divide-white/5"
+                )}>
                   {filteredHistory.map((h) => (
                     <tr 
                       key={h.id} 
                       onClick={() => setSelectedRecord(h)}
                       className={cn(
-                        "hover:bg-white/[0.02] transition-colors group cursor-pointer",
-                        selectedRecord?.id === h.id ? "bg-white/5" : ""
+                        "transition-colors group cursor-pointer",
+                        isLight ? "hover:bg-slate-50" : "hover:bg-white/[0.02]",
+                        selectedRecord?.id === h.id ? (isLight ? "bg-slate-50" : "bg-white/5") : ""
                       )}
                     >
                       <td className={cn(
                         "px-6 py-4 font-bold uppercase tracking-tight",
-                        theme === 'safe' ? "text-[#001D3D]" : "text-white/80"
+                        isLight ? "text-slate-900" : "text-white/80"
                       )}>{h.semester}</td>
                       <td className="px-6 py-4">
                         <span className={cn(
                           "px-2 py-0.5 rounded border text-xs font-mono font-bold",
-                          h.sgpa >= 9 ? "bg-brand-primary/10 text-brand-primary border-brand-primary/20" :
+                          h.sgpa >= 9 ? (isLight && theme === 'safe' ? "bg-[#003d73]/10 text-[#003d73] border-[#003d73]/20" : "bg-brand-primary/10 text-brand-primary border-brand-primary/20") :
                           h.sgpa >= 8 ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
                           "bg-amber-500/10 text-amber-400 border-amber-500/20"
                         )}>
@@ -473,19 +521,19 @@ export default function StudentDashboard() {
                       </td>
                       <td className={cn(
                         "px-6 py-4 font-mono text-xs",
-                        theme === 'safe' ? "text-slate-500" : "text-white/60"
+                        isLight ? "text-slate-500" : "text-white/60"
                       )}>{h.cgpa.toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <div className={cn(
-                          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border",
-                          h.verificationStatus === 'verified' ? "bg-brand-primary/5 text-brand-primary border-brand-primary/20" : "bg-red-500/5 text-red-500 border-red-500/20"
+                          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[13px] font-bold uppercase tracking-widest border",
+                          h.verificationStatus === 'verified' ? (isLight && theme === 'safe' ? "bg-[#003d73]/5 text-[#003d73] border-[#003d73]/20" : "bg-brand-primary/5 text-brand-primary border-brand-primary/20") : "bg-red-500/5 text-red-500 border-red-500/20"
                         )}>
                           {h.verificationStatus === 'verified' ? 'System Verified' : 'Discrepancy'}
                         </div>
                       </td>
                       <td className={cn(
-                        "px-6 py-4 text-[10px] font-mono",
-                        theme === 'safe' ? "text-slate-400" : "text-white/30"
+                        "px-6 py-4 text-[13px] font-mono",
+                        isLight ? "text-slate-400" : "text-white/30"
                       )}>{formatTimestamp(h.timestamp)}</td>
                       <td className="px-6 py-4">
                         <button 
@@ -493,7 +541,10 @@ export default function StudentDashboard() {
                             e.stopPropagation();
                             handleDelete(h.id);
                           }}
-                          className="p-2 text-white/10 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          className={cn(
+                            "p-2 rounded-lg transition-all",
+                            isLight ? "text-red-600 bg-red-50 hover:bg-red-100" : "text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                          )}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -502,7 +553,10 @@ export default function StudentDashboard() {
                   ))}
                   {history.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      <td colSpan={6} className={cn(
+                        "px-6 py-12 text-center",
+                        isLight ? "text-slate-400" : "text-white/20"
+                      )}>
                         No academic records found. Upload your first grade card to begin.
                       </td>
                     </tr>
@@ -527,17 +581,20 @@ export default function StudentDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className={cn(
-                    "text-xs font-bold uppercase tracking-[0.2em]",
-                    theme === 'safe' ? "text-[#003d73]" : "text-white"
+                    "text-base font-black uppercase tracking-[0.1em]",
+                    isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-brand-primary"
                   )}>Detailed Analysis</h3>
                   <p className={cn(
-                    "text-[10px] mt-1 font-mono uppercase tracking-tighter",
-                    theme === 'safe' ? "text-slate-400" : "text-white/30"
+                    "text-[13px] mt-1 font-mono uppercase tracking-tighter",
+                    isLight ? "text-slate-500" : "text-white/40"
                   )}>{selectedRecord.semester}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedRecord(null)}
-                  className="p-1 text-white/20 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                  className={cn(
+                    "p-1 rounded-lg transition-all",
+                    isLight ? "text-slate-400 hover:text-slate-900 hover:bg-slate-100" : "text-white/20 hover:text-white hover:bg-white/5"
+                  )}
                 >
                   <X size={18} />
                 </button>
@@ -555,7 +612,10 @@ export default function StudentDashboard() {
 
                   return (
                     <>
-                      <div className="col-span-1 bg-white/[0.02] border border-white/5 p-3 rounded-2xl relative overflow-hidden">
+                      <div className={cn(
+                        "col-span-1 border rounded-2xl relative overflow-hidden",
+                        isLight ? "bg-slate-50 border-slate-100" : "bg-white/[0.02] border-white/5"
+                      )}>
                         <div className="h-20 w-full">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -567,28 +627,36 @@ export default function StudentDashboard() {
                                 dataKey="value"
                               >
                                 {pieData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke={isLight ? "#ffffff" : "none"} />
                                 ))}
                               </Pie>
                               <Tooltip 
-                                contentStyle={{ backgroundColor: '#0a0a0a', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '8px' }}
+                                contentStyle={{ 
+                                  backgroundColor: isLight ? '#ffffff' : '#0a0a0a', 
+                                  borderRadius: '8px', 
+                                  border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.1)', 
+                                  fontSize: '13px' 
+                                }}
                               />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
                         <p className={cn(
-                          "text-[8px] text-center uppercase font-bold tracking-widest mt-1",
-                          theme === 'safe' ? "text-slate-400" : "text-white/20"
+                          "text-[13px] text-center uppercase font-bold tracking-widest mt-1",
+                          isLight ? "text-slate-400" : "text-white/20"
                         )}>Grade Spread</p>
                       </div>
-                      <div className="col-span-1 bg-white/[0.02] border border-white/5 p-3 rounded-2xl flex flex-col justify-center items-center">
+                      <div className={cn(
+                        "col-span-1 border rounded-2xl flex flex-col justify-center items-center",
+                        isLight ? "bg-slate-50 border-slate-100" : "bg-white/[0.02] border-white/5"
+                      )}>
                         <span className={cn(
-                          "text-2xl font-black text-brand-primary",
-                          theme === 'safe' && "text-[#005495]"
+                          "text-2xl font-black",
+                          isLight ? (theme === 'safe' ? "text-[#005495]" : "text-slate-900") : "text-brand-primary"
                         )}>{selectedRecord.sgpa.toFixed(2)}</span>
                         <p className={cn(
-                          "text-[8px] uppercase font-bold tracking-widest mt-1",
-                          theme === 'safe' ? "text-slate-400" : "text-white/20"
+                          "text-[13px] uppercase font-bold tracking-widest mt-1",
+                          isLight ? "text-slate-400" : "text-white/20"
                         )}>Semester SGPA</p>
                       </div>
 
@@ -598,7 +666,7 @@ export default function StudentDashboard() {
                           <div key={entry.name} className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                             <span className={cn(
-                              "text-[8px] font-bold uppercase tracking-tighter",
+                              "text-[13px] font-bold uppercase tracking-tighter",
                               theme === 'safe' ? "text-slate-500" : "text-white/40"
                             )}>{entry.name}: {entry.value}</span>
                           </div>
@@ -611,7 +679,7 @@ export default function StudentDashboard() {
 
               <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar mb-6">
                 <p className={cn(
-                  "text-[9px] font-bold uppercase tracking-[0.2em] mb-2 px-1",
+                  "text-[13px] font-bold uppercase tracking-[0.2em] mb-2 px-1",
                   theme === 'safe' ? "text-slate-400" : "text-white/20"
                 )}>Subject Performance</p>
                 {selectedRecord.subjects.map((sub, i) => (
@@ -621,11 +689,11 @@ export default function StudentDashboard() {
                   )}>
                     <div className="flex justify-between items-start mb-1">
                       <span className={cn(
-                        "text-[9px] font-bold uppercase tracking-widest",
+                        "text-[13px] font-bold uppercase tracking-widest",
                         theme === 'safe' ? "text-slate-300" : "text-white/20"
                       )}>{sub.code}</span>
                       <span className={cn(
-                        "text-10px font-mono font-bold",
+                        "text-[13px] font-mono font-bold",
                         theme === 'safe' ? "text-[#005495]" : "text-brand-primary"
                       )}>GP: {sub.points}</span>
                     </div>
@@ -649,11 +717,11 @@ export default function StudentDashboard() {
 
                     <div className="flex items-center justify-between mt-2">
                        <span className={cn(
-                         "text-[9px] font-bold uppercase tracking-tighter",
+                         "text-[13px] font-bold uppercase tracking-tighter",
                          theme === 'safe' ? "text-slate-300" : "text-white/20"
                        )}>{sub.credits.toFixed(1)} Credits</span>
                        <div className={cn(
-                         "px-1.5 py-0.5 rounded border text-[10px] font-bold font-mono",
+                         "px-1.5 py-0.5 rounded border text-[13px] font-bold font-mono",
                          theme === 'safe' ? "bg-slate-100 text-[#005495] border-[#005495]/20" : "bg-brand-primary/10 text-brand-primary border-brand-primary/20"
                        )}>
                          {sub.grade}
@@ -664,25 +732,48 @@ export default function StudentDashboard() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5">
-                    <p className="text-[8px] text-white/30 uppercase font-bold tracking-widest mb-1">Total EGP</p>
-                    <p className="text-sm font-mono text-white font-bold">{selectedRecord.summary?.totalEgp?.toFixed(2) || 'N/A'}</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={cn(
+                      "p-3 rounded-2xl border transition-colors",
+                      isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5"
+                    )}>
+                      <p className={cn(
+                        "text-[13px] uppercase font-bold tracking-widest mb-1",
+                        isLight ? "text-slate-400" : "text-white/30"
+                      )}>Total EGP</p>
+                      <p className={cn(
+                        "text-sm font-mono font-bold",
+                        isLight ? "text-slate-900" : "text-white"
+                      )}>{selectedRecord.summary?.totalEgp?.toFixed(2) || 'N/A'}</p>
+                    </div>
+                    <div className={cn(
+                      "p-3 rounded-2xl border transition-colors",
+                      isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5"
+                    )}>
+                      <p className={cn(
+                        "text-[13px] text-white/30 uppercase font-bold tracking-widest mb-1",
+                        isLight ? "text-slate-400" : "text-white/30"
+                      )}>Credits</p>
+                      <p className={cn(
+                        "text-sm font-mono font-bold",
+                        isLight ? "text-slate-900" : "text-white"
+                      )}>{selectedRecord.summary?.totalCredits || selectedRecord.subjects.reduce((sum, s) => sum + s.credits, 0)}</p>
+                    </div>
                   </div>
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5">
-                    <p className="text-[8px] text-white/30 uppercase font-bold tracking-widest mb-1">Credits</p>
-                    <p className="text-sm font-mono text-white font-bold">{selectedRecord.summary?.totalCredits || selectedRecord.subjects.reduce((sum, s) => sum + s.credits, 0)}</p>
-                  </div>
+                  
+                  <button 
+                    onClick={exportPDF}
+                    className={cn(
+                      "w-full rounded-xl py-3 text-[13px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border",
+                      isLight && theme === 'safe' 
+                        ? "bg-[#003d73]/10 text-[#003d73] hover:bg-[#003d73] hover:text-white border-[#003d73]/20" 
+                        : "bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-black border-brand-primary/20"
+                    )}
+                  >
+                    <FileDown size={14} />
+                    Download Dossier
+                  </button>
                 </div>
-                
-                <button 
-                  onClick={exportPDF}
-                  className="w-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-black border border-brand-primary/20 rounded-xl py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2"
-                >
-                  <FileDown size={14} />
-                  Download Dossier
-                </button>
-              </div>
             </motion.div>
           </div>
         )}

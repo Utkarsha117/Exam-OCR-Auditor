@@ -13,6 +13,7 @@ import { UserRole } from '../types';
 
 export default function LoginPage() {
   const { theme } = useTheme();
+  const isLight = ['light', 'safe', 'swiss', 'mono'].includes(theme);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,7 +61,6 @@ export default function LoginPage() {
           name,
           role,
           mobile,
-          registrationNo: role === 'student' ? registrationNo : '',
           createdAt: new Date().toISOString()
         };
         
@@ -82,7 +82,7 @@ export default function LoginPage() {
   return (
     <div className={cn(
       "flex min-h-screen items-center justify-center p-4 transition-colors duration-500",
-      theme === 'safe' ? "bg-brand-bg text-[#001226]" : "bg-slate-950 text-white"
+      isLight ? (theme === 'safe' ? "bg-brand-bg text-[#001226]" : "bg-slate-50 text-slate-900") : "bg-slate-950 text-white"
     )}>
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -114,11 +114,11 @@ export default function LoginPage() {
             </div>
             <h1 className={cn(
               "text-3xl font-black tracking-tighter uppercase mb-1",
-              theme === 'safe' ? "text-[#001226]" : "text-white"
+              isLight ? (theme === 'safe' ? "text-[#001226]" : "text-slate-900") : "text-white"
             )}>GPA Genie</h1>
             <p className={cn(
               "text-xs uppercase font-bold tracking-widest",
-              theme === 'safe' ? "text-[#00a6bb]" : "text-slate-400"
+              isLight && theme === 'safe' ? "text-[#00a6bb]" : (isLight ? "text-slate-400" : "text-slate-400")
             )}>Academic Verification System</p>
           </div>
 
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <User className={cn(
                     "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                    theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
+                    isLight ? "text-slate-300" : "text-slate-500"
                   )} size={18} />
                   <input
                     type="text"
@@ -138,8 +138,8 @@ export default function LoginPage() {
                     onChange={(e) => setName(e.target.value)}
                     className={cn(
                       "w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all border-2",
-                      theme === 'safe' 
-                        ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
+                      isLight 
+                        ? "bg-white border-slate-100 focus:border-slate-900 text-slate-900" 
                         : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
                     )}
                   />
@@ -147,7 +147,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Phone className={cn(
                     "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                    theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
+                    isLight ? "text-slate-300" : "text-slate-500"
                   )} size={18} />
                   <input
                     type="tel"
@@ -157,33 +157,12 @@ export default function LoginPage() {
                     onChange={(e) => setMobile(e.target.value)}
                     className={cn(
                       "w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all border-2",
-                      theme === 'safe' 
-                        ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
+                      isLight 
+                        ? "bg-white border-slate-100 focus:border-slate-900 text-slate-900" 
                         : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
                     )}
                   />
                 </div>
-                {role === 'student' && (
-                  <div className="relative">
-                    <GraduationCap className={cn(
-                      "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                      theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
-                    )} size={18} />
-                    <input
-                      type="text"
-                      placeholder="Registration Number"
-                      required={role === 'student'}
-                      value={registrationNo}
-                      onChange={(e) => setRegistrationNo(e.target.value)}
-                      className={cn(
-                        "w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all border-2",
-                        theme === 'safe' 
-                          ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
-                          : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
-                    )}
-                    />
-                  </div>
-                )}
                 <div className="grid grid-cols-3 gap-2 py-2">
                   {(['student', 'teacher', 'mis'] as UserRole[]).map((r) => (
                     <button
@@ -193,8 +172,8 @@ export default function LoginPage() {
                       className={cn(
                         "py-3 text-[10px] font-black uppercase tracking-tighter rounded-xl border-2 transition-all",
                         role === r 
-                          ? (theme === 'safe' ? "bg-[#001226] border-[#001226] text-white" : "bg-emerald-500 border-emerald-500 text-black") 
-                          : (theme === 'safe' ? "bg-white border-slate-200 text-slate-400 hover:border-[#001226]/30" : "bg-slate-800 border-slate-700 text-slate-400")
+                          ? (isLight && theme === 'safe' ? "bg-[#001226] border-[#001226] text-white" : "bg-emerald-500 border-emerald-500 text-black") 
+                          : (isLight ? "bg-white border-slate-200 text-slate-400 hover:border-slate-900" : "bg-slate-800 border-slate-700 text-slate-400")
                       )}
                     >
                       {r}
@@ -209,7 +188,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Mail className={cn(
                     "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                    theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
+                    isLight ? "text-slate-300" : "text-slate-500"
                   )} size={18} />
                   <input
                     type="email"
@@ -219,8 +198,8 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className={cn(
                       "w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all border-2",
-                      theme === 'safe' 
-                        ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
+                      isLight 
+                        ? "bg-white border-slate-100 focus:border-slate-900 text-slate-900" 
                         : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
                     )}
                   />
@@ -228,7 +207,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Lock className={cn(
                     "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                    theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
+                    isLight ? "text-slate-300" : "text-slate-500"
                   )} size={18} />
                   <input
                     type="password"
@@ -238,8 +217,8 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className={cn(
                       "w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all border-2",
-                      theme === 'safe' 
-                        ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
+                      isLight 
+                        ? "bg-white border-slate-100 focus:border-slate-900 text-slate-900" 
                         : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
                     )}
                   />
@@ -249,17 +228,17 @@ export default function LoginPage() {
               <div className="space-y-4">
                 <div className={cn(
                   "p-4 rounded-xl border-2 transition-all",
-                  theme === 'safe' ? "bg-emerald-50 border-emerald-100" : "bg-emerald-500/10 border-emerald-500/20"
+                  isLight ? "bg-emerald-50 border-emerald-100" : "bg-emerald-500/10 border-emerald-500/20"
                 )}>
                   <p className={cn(
                     "text-sm text-center font-bold",
-                    theme === 'safe' ? "text-emerald-700" : "text-emerald-400"
+                    isLight ? "text-emerald-700" : "text-emerald-400"
                   )}>Verification code sent to {mobile}</p>
                 </div>
                 <div className="relative">
                   <CheckCircle2 className={cn(
                     "absolute left-4 top-1/2 -translate-y-1/2 transition-colors",
-                    theme === 'safe' ? "text-[#001226]/40" : "text-slate-500"
+                    isLight ? "text-slate-300" : "text-slate-500"
                   )} size={18} />
                   <input
                     type="text"
@@ -270,15 +249,15 @@ export default function LoginPage() {
                     maxLength={6}
                     className={cn(
                       "w-full rounded-xl py-4 pl-12 pr-4 focus:outline-none transition-all border-2 text-center tracking-[0.5em] font-black text-2xl",
-                      theme === 'safe' 
-                        ? "bg-slate-50 border-slate-100 focus:border-[#001226] text-[#001226]" 
+                      isLight 
+                        ? "bg-white border-slate-100 focus:border-slate-900 text-slate-900" 
                         : "bg-slate-800 border-slate-700 text-white focus:border-emerald-500"
                     )}
                   />
                 </div>
                 <p className={cn(
                   "text-[10px] text-center uppercase tracking-widest font-black italic",
-                  theme === 'safe' ? "text-[#001226]/30" : "text-slate-500"
+                  isLight ? "text-slate-300" : "text-slate-500"
                 )}>
                   Simulation Environment
                 </p>
@@ -289,9 +268,9 @@ export default function LoginPage() {
               disabled={loading}
               className={cn(
                 "w-full py-4 rounded-xl font-black uppercase tracking-tighter shadow-xl focus:ring-4 transition-all flex items-center justify-center",
-                theme === 'safe' 
+                isLight && theme === 'safe' 
                   ? "bg-[#001226] text-white hover:bg-black focus:ring-[#001226]/20" 
-                  : "bg-brand-primary text-black hover:opacity-90 focus:ring-emerald-500/20"
+                  : (isLight ? "bg-slate-900 text-white hover:bg-black" : "bg-brand-primary text-black hover:opacity-90 focus:ring-emerald-500/20")
               )}
             >
               {loading ? (
@@ -310,23 +289,23 @@ export default function LoginPage() {
               }}
               className={cn(
                 "text-xs uppercase font-black tracking-widest transition-colors",
-                theme === 'safe' ? "text-[#001226]/40 hover:text-[#001226]" : "text-slate-400 hover:text-emerald-400"
+                isLight ? "text-slate-400 hover:text-slate-900" : "text-slate-400 hover:text-emerald-400"
               )}
             >
-              {isLogin ? "Join the vault? Sign Up" : "Back to access? Sign In"}
+              {isLogin ? "New user? Join GPA Genie" : "Back to access? Sign In"}
             </button>
           </div>
         </div>
         
         <div className={cn(
           "p-5 text-center border-t transition-all",
-          theme === 'safe' ? "bg-slate-50 border-slate-200" : "bg-slate-950 border-slate-800"
+          isLight ? "bg-slate-50 border-slate-100" : "bg-slate-950 border-slate-800"
         )}>
           <p className={cn(
             "text-[9px] uppercase tracking-[0.3em] font-black flex items-center justify-center gap-3",
-            theme === 'safe' ? "text-[#001226]/40" : "text-slate-600"
+            isLight ? "text-slate-300" : "text-slate-600"
           )}>
-            <ShieldCheck size={14} className={theme === 'safe' ? "text-[#00a6bb]" : "text-emerald-500"} />
+            <ShieldCheck size={14} className={isLight && theme === 'safe' ? "text-[#00a6bb]" : "text-emerald-500"} />
             Advanced Academic Shield
           </p>
         </div>

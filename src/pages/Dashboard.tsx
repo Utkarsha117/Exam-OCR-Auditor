@@ -28,6 +28,7 @@ import { cn } from '../lib/utils';
 export default function Dashboard() {
   const { profile, logout } = useAuth();
   const { theme } = useTheme();
+  const isLight = ['light', 'safe', 'swiss', 'mono'].includes(theme);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [controlPanelOpen, setControlPanelOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -72,18 +73,17 @@ export default function Dashboard() {
       <aside className={cn(
         "fixed left-0 top-0 z-50 h-full w-64 transition-transform duration-300 transform lg:translate-x-0 lg:static border-r duration-500",
         theme === 'cyber' ? "backdrop-blur-2xl bg-brand-nav/70 border-white/10 text-white/60" :
-        theme === 'safe' ? "bg-brand-nav border-slate-200 text-slate-700 shadow-sm" :
+        isLight ? "bg-white border-slate-200 text-slate-700 shadow-sm" :
         theme === 'swiss' ? "bg-black border-r-4 border-black text-white" :
-        theme === 'mono' ? "bg-white border-slate-200 text-black/60 shadow-sm" :
         "bg-brand-nav border-white/5 text-white/60",
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="flex h-full flex-col">
           <div className={cn(
             "flex h-24 items-center px-6 border-b transition-colors duration-500",
-            theme === 'safe' ? "border-slate-200 bg-white" : "border-white/5"
+            isLight ? "border-slate-50 bg-white" : "border-white/5"
           )}>
-            {theme === 'safe' ? (
+            {isLight && theme === 'safe' ? (
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#001D3D] rounded-xl flex items-center justify-center p-1.5 text-white shadow-lg">
                    <div className="flex flex-col items-center leading-[0.8]">
@@ -93,8 +93,8 @@ export default function Dashboard() {
                    </div>
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className="text-[12px] font-black text-[#001D3D] tracking-tight">GPA</span>
-                  <span className="text-[12px] font-bold text-[#001D3D]/80 italic font-serif">GENIE</span>
+                  <span className="text-[12px] font-black text-[#001D3D] tracking-tight">ACADEMIC</span>
+                  <span className="text-[12px] font-bold text-[#001D3D]/80 italic font-serif">HUB</span>
                 </div>
               </div>
             ) : (
@@ -103,20 +103,20 @@ export default function Dashboard() {
                   "w-8 h-8 rounded flex items-center justify-center text-black font-bold mr-3 transition-all duration-300",
                   theme === 'cyber' ? "bg-brand-primary neon-border" : 
                   theme === 'swiss' ? "bg-white scale-110 -rotate-3" :
-                  theme === 'mono' ? "bg-black text-white rounded-none" :
+                  isLight ? "bg-slate-900 text-white" :
                   "bg-brand-primary"
                 )}>G</div>
                 <span className={cn(
                   "text-xl tracking-tighter uppercase font-black",
-                  theme === 'safe' || theme === 'swiss' || theme === 'mono' ? "text-inherit" : "text-white"
-                )}>GPA <span className={cn(theme === 'safe' ? "text-[#001D3D]" : "text-[#00a6bb]")}>Genie</span></span>
+                  isLight ? "text-slate-900" : "text-white"
+                )}>Academic <span className={cn(isLight && theme === 'safe' ? "text-[#001D3D]" : (isLight ? "text-slate-500" : "text-[#00a6bb]"))}>Hub</span></span>
               </>
             )}
           </div>
 
           <p className={cn(
             "px-6 mt-6 text-[10px] uppercase tracking-[0.2em] mb-2",
-            theme === 'safe' ? "text-[#001D3D]/40" : "text-white/30"
+            isLight ? (theme === 'safe' ? "text-[#001D3D]/40" : "text-slate-400") : "text-white/30"
           )}>Control Panel</p>
           <nav className="flex-1 space-y-1 p-4">
             {filteredMenuItems.map((item) => (
@@ -127,8 +127,8 @@ export default function Dashboard() {
                 className={cn(
                   "flex items-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 border",
                   location.pathname === item.path 
-                    ? (theme === 'safe' ? "bg-slate-50 text-[#001D3D] border-[#001D3D]/20 shadow-sm" : "bg-brand-primary/10 text-brand-primary border-brand-primary/30")
-                    : (theme === 'safe' ? "border-transparent text-slate-400 hover:bg-slate-50 hover:text-[#001D3D]" : "border-transparent text-white/40 hover:bg-white/5 hover:text-white")
+                    ? (isLight ? "bg-slate-50 text-slate-900 border-slate-200 shadow-sm" : "bg-brand-primary/10 text-brand-primary border-brand-primary/30")
+                    : (isLight ? "border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-900" : "border-transparent text-white/40 hover:bg-white/5 hover:text-white")
                 )}
               >
                 <item.icon size={18} className="mr-3" />
@@ -137,22 +137,25 @@ export default function Dashboard() {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-white/5">
+          <div className={cn(
+            "p-4 border-t",
+            isLight ? "border-slate-50" : "border-white/5"
+          )}>
             <div className="flex items-center p-2 mb-4">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs mr-3",
-                theme === 'safe' ? "bg-[#001D3D]" : "bg-blue-600"
+                isLight && theme === 'safe' ? "bg-[#001D3D]" : (isLight ? "bg-slate-900" : "bg-blue-600")
               )}>
                 {profile?.name?.charAt(0) || 'U'}
               </div>
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   "text-sm font-semibold truncate",
-                  theme === 'safe' ? "text-[#001D3D]" : "text-white"
+                  isLight ? "text-slate-900" : "text-white"
                 )}>{profile?.name}</p>
                 <p className={cn(
                   "text-[10px] uppercase tracking-wider",
-                  theme === 'safe' ? "text-[#001D3D]/50" : "text-white/30"
+                  isLight ? "text-slate-400" : "text-white/30"
                 )}>{profile?.role}</p>
               </div>
             </div>
@@ -160,7 +163,7 @@ export default function Dashboard() {
               onClick={handleLogout}
               className={cn(
                 "flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                theme === 'safe' ? "text-slate-400 hover:bg-slate-50 hover:text-red-600" : "text-white/40 hover:bg-white/5 hover:text-white"
+                isLight ? "text-slate-400 hover:bg-slate-50 hover:text-red-600" : "text-white/40 hover:bg-white/5 hover:text-white"
               )}
             >
               <LogOut size={18} className="mr-3" />
@@ -176,27 +179,26 @@ export default function Dashboard() {
         <header className={cn(
           "h-16 border-b px-4 flex items-center justify-between lg:px-8 transition-colors duration-500",
           theme === 'cyber' ? "backdrop-blur-xl bg-brand-nav/60 border-white/5" :
-          theme === 'safe' ? "bg-white border-slate-200" :
+          isLight ? "bg-white border-slate-200" :
           theme === 'swiss' ? "bg-white border-b-4 border-black" :
-          theme === 'mono' ? "bg-white border-slate-200" :
           "bg-brand-nav border-white/5"
         )}>
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 text-white/50 lg:hidden hover:bg-white/5 rounded-lg"
+            className={cn(
+              "p-2 lg:hidden rounded-lg transition-colors",
+              isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/50 hover:bg-white/5"
+            )}
           >
             <Menu size={20} />
           </button>
 
           <div className="flex items-center flex-1 max-w-sm ml-4 lg:ml-0">
             <div className={cn(
-              "px-3 py-1 rounded-full border text-[10px] uppercase tracking-widest font-bold font-mono",
-              theme === 'safe' ? "bg-slate-50 border-slate-200 text-slate-500" : 
-              theme === 'swiss' ? "bg-black text-white border-black rounded-none" :
-              theme === 'mono' ? "bg-slate-100 border-slate-200 text-slate-600" :
-              "bg-white/5 border-white/10 text-white/60"
+              "px-3 py-1 rounded-full border text-[13px] uppercase tracking-widest font-bold font-mono",
+              isLight && theme === 'safe' ? "bg-slate-50 border-slate-200 text-[#003d73]" : (isLight ? "bg-slate-100 border-slate-200 text-slate-500" : "bg-white/5 border-white/10 text-white/60")
             )}>
-              {profile?.role === 'mis' ? 'MIS Faculty View' : profile?.role === 'teacher' ? 'Instructor Portal' : 'Student Academic Hub'} • Session 2023-24
+              {profile?.role === 'mis' ? 'MIS Faculty View' : profile?.role === 'teacher' ? 'Instructor Portal' : 'Student GPA Genie'}
             </div>
           </div>
 
@@ -206,13 +208,13 @@ export default function Dashboard() {
               onClick={() => setControlPanelOpen(true)}
               className={cn(
                 "flex items-center gap-2 p-2 px-3 rounded-xl transition-all",
-                theme === 'safe' 
-                  ? "bg-[#003d73] text-white shadow-lg hover:bg-[#005495]" 
+                isLight 
+                  ? (isLight && theme === 'safe' ? "bg-[#003d73] text-white shadow-lg hover:bg-[#005495]" : "bg-slate-900 text-white shadow-lg hover:bg-slate-800") 
                   : "text-white/40 hover:bg-white/5"
               )}
             >
               <Settings size={20} />
-              {theme === 'safe' && <span className="text-[10px] font-bold uppercase tracking-widest hidden md:block">Settings</span>}
+              {isLight && <span className="text-[10px] font-bold uppercase tracking-widest hidden md:block">Settings</span>}
             </button>
             <div className="relative">
               <button 
@@ -220,8 +222,8 @@ export default function Dashboard() {
                 className={cn(
                   "p-2 rounded-full relative transition-all",
                   notificationsOpen 
-                    ? (theme === 'safe' ? "bg-slate-100 text-brand-primary" : "bg-white/10 text-brand-primary")
-                    : (theme === 'safe' ? "text-slate-600 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")
+                    ? (isLight ? "bg-slate-100 text-slate-900" : "bg-white/10 text-brand-primary")
+                    : (isLight ? "text-slate-600 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")
                 )}
               >
                 <Bell size={20} />
@@ -241,36 +243,36 @@ export default function Dashboard() {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className={cn(
                         "absolute right-0 mt-3 w-72 border rounded-2xl shadow-2xl z-[70] overflow-hidden",
-                        theme === 'safe' ? "bg-white border-slate-200" : "bg-brand-nav border-white/10"
+                        isLight ? "bg-white border-slate-200" : "bg-brand-nav border-white/10"
                       )}
                     >
                       <div className={cn(
                         "p-4 border-b flex items-center justify-between",
-                        theme === 'safe' ? "bg-slate-50 border-slate-100" : "bg-white/5 border-white/5"
+                        isLight ? "bg-slate-50 border-slate-50" : "bg-white/5 border-white/5"
                       )}>
                         <h4 className={cn(
                           "text-[10px] font-bold uppercase tracking-[0.2em]",
-                          theme === 'safe' ? "text-[#003d73]" : "text-white"
+                          isLight ? "text-slate-900" : "text-white"
                         )}>Operational Dispatch</h4>
                         <span className="text-[9px] text-brand-primary font-mono font-bold animate-pulse">Live Feed</span>
                       </div>
                       <div className={cn(
                         "max-h-[300px] overflow-y-auto",
-                        theme === 'safe' ? "divide-y divide-slate-100" : "divide-y divide-white/5"
+                        isLight ? "divide-y divide-slate-50" : "divide-y divide-white/5"
                       )}>
                         {notifications.map((n) => (
                           <div key={n.id} className={cn(
                             "p-4 transition-colors cursor-pointer group",
-                            theme === 'safe' ? "hover:bg-slate-50" : "hover:bg-white/[0.02]"
+                            isLight ? "hover:bg-slate-50" : "hover:bg-white/[0.02]"
                           )}>
                             <div className="flex justify-between items-start mb-1">
                               <p className={cn(
                                 "text-xs font-bold transition-colors",
-                                theme === 'safe' ? "text-[#003d73]/80 group-hover:text-black" : "text-white/80 group-hover:text-white"
+                                isLight ? "text-slate-600 group-hover:text-slate-900" : "text-white/80 group-hover:text-white"
                               )}>{n.title}</p>
                               <span className={cn(
                                 "text-[9px] font-mono italic",
-                                theme === 'safe' ? "text-slate-400" : "text-white/20"
+                                isLight ? "text-slate-300" : "text-white/20"
                               )}>{n.time}</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -281,7 +283,7 @@ export default function Dashboard() {
                               )} />
                               <span className={cn(
                                 "text-[8px] uppercase font-bold tracking-widest",
-                                theme === 'safe' ? "text-slate-400" : "text-white/30"
+                                isLight ? "text-slate-300" : "text-white/30"
                               )}>{n.type} dispatch</span>
                             </div>
                           </div>
@@ -289,7 +291,7 @@ export default function Dashboard() {
                       </div>
                       <button className={cn(
                         "w-full py-3 text-[9px] font-bold uppercase tracking-widest transition-all",
-                        theme === 'safe' ? "bg-slate-50 text-slate-400 hover:text-[#00a6bb] hover:bg-slate-100" : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
+                        isLight ? "bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100" : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
                       )}>
                         Clear Dispatch Logs
                       </button>
@@ -298,15 +300,18 @@ export default function Dashboard() {
                 )}
               </AnimatePresence>
             </div>
-            <div className="h-8 w-[1px] bg-white/5 mx-2 hidden sm:block"></div>
+            <div className={cn(
+              "h-8 w-[1px] mx-2 hidden sm:block",
+              isLight ? "bg-slate-200" : "bg-white/5"
+            )}></div>
             <div className={cn(
               "flex flex-col text-right hidden sm:flex",
-              theme === 'safe' || theme === 'swiss' || theme === 'mono' ? "text-[#001D3D]" : "text-white"
+              isLight ? "text-slate-900" : "text-white"
             )}>
               <span className="text-[11px] font-bold uppercase tracking-tight">{profile?.name}</span>
               <span className={cn(
                 "text-[10px] uppercase font-bold tracking-widest leading-none",
-                theme === 'safe' || theme === 'swiss' || theme === 'mono' ? "text-slate-400" : "text-white/30"
+                isLight ? "text-slate-400" : "text-white/30"
               )}>{profile?.role}</span>
             </div>
           </div>

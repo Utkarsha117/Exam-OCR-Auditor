@@ -60,24 +60,24 @@ service cloud.firestore {
       // Single document access
       allow get: if isSignedIn() && (
         isOwner(resource.data.uid) || 
-        (resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '____')) ||
-        hasRole('teacher') || 
+        (getProfile().get('registrationNo', '') != '' && resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '')) ||
+        (hasRole('teacher') && resource.data.get('uploadedBy', '') == request.auth.uid) || 
         hasRole('mis')
       );
 
       // Collection queries
       allow list: if isSignedIn() && (
         isOwner(resource.data.uid) || 
-        (resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '____')) ||
+        (getProfile().get('registrationNo', '') != '' && resource.data.get('registrationNo', '') == getProfile().get('registrationNo', '')) ||
         isBootstrappedAdmin() ||
-        hasRole('teacher') || 
+        (hasRole('teacher') && resource.data.get('uploadedBy', '') == request.auth.uid) || 
         hasRole('mis')
       );
       
       allow create: if isSignedIn() && isValidId(entryId) && (
         (isOwner(incoming().uid) && isValidGPAEntry(incoming())) ||
         (hasRole('mis') && isValidGPAEntry(incoming())) ||
-        (hasRole('teacher') && isValidGPAEntry(incoming()))
+        (hasRole('teacher') && isValidGPAEntry(incoming()) && incoming().uploadedBy == request.auth.uid)
       );
       
       allow update: if isSignedIn() && (

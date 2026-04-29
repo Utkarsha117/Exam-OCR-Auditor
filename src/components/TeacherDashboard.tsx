@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
+import { collection, query, orderBy, onSnapshot, getDocs, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { OperationType, handleFirestoreError } from '../lib/errorHandlers';
 import { GPAEntry } from '../types';
@@ -9,7 +10,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function TeacherDashboard() {
+  const { user } = useAuth();
   const { theme } = useTheme();
+  const isLight = ['light', 'safe', 'swiss', 'mono'].includes(theme);
   const [records, setRecords] = useState<GPAEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecord, setSelectedRecord] = useState<GPAEntry | null>(null);
@@ -21,8 +24,11 @@ export default function TeacherDashboard() {
   const [minSgpa, setMinSgpa] = useState<number>(0);
 
   useEffect(() => {
+    if (!user) return;
+
     const q = query(
       collection(db, 'gpa_history'),
+      where('uploadedBy', '==', user.uid),
       orderBy('timestamp', 'desc')
     );
 
@@ -56,11 +62,11 @@ export default function TeacherDashboard() {
         <div>
           <h2 className={cn(
             "text-2xl font-black tracking-tight uppercase",
-            theme === 'safe' ? "text-[#001D3D]" : "text-white"
+            isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-white"
           )}>Academic Oversight</h2>
           <p className={cn(
             "text-xs uppercase tracking-widest mt-1",
-            theme === 'safe' ? "text-[#001D3D]/60" : "text-white/40"
+            isLight ? (theme === 'safe' ? "text-[#001D3D]/60" : "text-slate-500") : "text-white/40"
           )}>Instructor portal for verified student performance analytics.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -102,9 +108,15 @@ export default function TeacherDashboard() {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-brand-surface border border-white/5 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 shadow-xl">
+            <div className={cn(
+              "border rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 shadow-xl transition-all duration-500",
+              isLight ? "bg-white border-slate-100" : "bg-brand-surface border-white/5"
+            )}>
               <div>
-                <label className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] block mb-3">Verification Status</label>
+                <label className={cn(
+                  "text-[10px] font-bold uppercase tracking-[0.2em] block mb-3",
+                  isLight ? "text-slate-400" : "text-white/20"
+                )}>Verification Status</label>
                 <div className="flex gap-2">
                   {['all', 'verified', 'discrepancy'].map((status) => (
                     <button
@@ -113,8 +125,8 @@ export default function TeacherDashboard() {
                       className={cn(
                         "flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all",
                         statusFilter === status 
-                          ? "bg-brand-primary text-black border-brand-primary" 
-                          : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                          ? (isLight && theme === 'safe' ? "bg-[#003d73] text-white border-[#003d73]" : "bg-brand-primary text-black border-brand-primary") 
+                          : (isLight ? "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-400" : "bg-white/5 border-white/5 text-white/40 hover:border-white/20")
                       )}
                     >
                       {status}
@@ -124,7 +136,10 @@ export default function TeacherDashboard() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] block mb-3">Academic Standing</label>
+                <label className={cn(
+                  "text-[10px] font-bold uppercase tracking-[0.2em] block mb-3",
+                  isLight ? "text-slate-400" : "text-white/20"
+                )}>Academic Standing</label>
                 <div className="flex gap-2">
                   {['all', 'clear', 'backlog'].map((standing) => (
                     <button
@@ -133,8 +148,8 @@ export default function TeacherDashboard() {
                       className={cn(
                         "flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all",
                         backlogFilter === standing 
-                          ? "bg-brand-primary text-black border-brand-primary" 
-                          : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                          ? (isLight && theme === 'safe' ? "bg-[#003d73] text-white border-[#003d73]" : "bg-brand-primary text-black border-brand-primary") 
+                          : (isLight ? "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-400" : "bg-white/5 border-white/5 text-white/40 hover:border-white/20")
                       )}
                     >
                       {standing}
@@ -145,8 +160,14 @@ export default function TeacherDashboard() {
 
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">Minimum SGPA</label>
-                  <span className="font-mono text-xs text-brand-primary font-bold">{minSgpa.toFixed(1)}</span>
+                  <label className={cn(
+                    "text-[10px] font-bold uppercase tracking-[0.2em]",
+                    isLight ? "text-slate-400" : "text-white/20"
+                  )}>Minimum SGPA</label>
+                  <span className={cn(
+                    "font-mono text-xs font-bold",
+                    isLight && theme === 'safe' ? "text-[#00a6bb]" : "text-brand-primary"
+                  )}>{minSgpa.toFixed(1)}</span>
                 </div>
                 <input 
                   type="range" 
@@ -155,11 +176,14 @@ export default function TeacherDashboard() {
                   step="0.1"
                   value={minSgpa}
                   onChange={(e) => setMinSgpa(parseFloat(e.target.value))}
-                  className="w-full accent-brand-primary h-1 bg-white/10 rounded-full appearance-none cursor-pointer"
+                  className={cn(
+                    "w-full h-1 rounded-full appearance-none cursor-pointer",
+                    isLight && theme === 'safe' ? "accent-[#00a6bb] bg-slate-200" : "accent-brand-primary bg-white/10"
+                  )}
                 />
                 <div className="flex justify-between mt-2">
-                  <span className="text-[8px] font-bold text-white/10">0.0</span>
-                  <span className="text-[8px] font-bold text-white/10">10.0</span>
+                  <span className={cn("text-[8px] font-bold", isLight ? "text-slate-300" : "text-white/10")}>0.0</span>
+                  <span className={cn("text-[8px] font-bold", isLight ? "text-slate-300" : "text-white/10")}>10.0</span>
                 </div>
               </div>
             </div>
@@ -172,7 +196,10 @@ export default function TeacherDashboard() {
                   setMinSgpa(0);
                   setSearchTerm('');
                 }}
-                className="text-[10px] font-bold text-white/20 hover:text-white uppercase tracking-widest transition-colors"
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-widest transition-colors",
+                  isLight ? "text-slate-400 hover:text-slate-900" : "text-white/20 hover:text-white"
+                )}
               >
                 Reset All Filters
               </button>
@@ -191,8 +218,9 @@ export default function TeacherDashboard() {
               onClick={() => setSelectedRecord(record)}
               className={cn(
                 "border rounded-2xl p-4 cursor-pointer transition-all flex items-center justify-between group duration-500",
-                theme === 'safe' ? "bg-white/60 backdrop-blur-md border-slate-200 shadow-sm hover:shadow-md hover:border-[#001D3D]/40" : "bg-brand-surface border-white/5 hover:bg-white/[0.02]",
-                selectedRecord?.id === record.id ? (theme === 'safe' ? "border-[#001D3D] ring-2 ring-[#001D3D]/10 bg-white" : "border-blue-500/50 ring-1 ring-blue-500/10") : ""
+                theme === 'safe' ? "bg-white/60 backdrop-blur-md border-slate-200 shadow-sm hover:shadow-md hover:border-[#001D3D]/40" : 
+                isLight ? "bg-white border-slate-100 shadow-sm hover:border-slate-300" : "bg-brand-surface border-white/5 hover:bg-white/[0.02]",
+                selectedRecord?.id === record.id ? (theme === 'safe' ? "border-[#001D3D] ring-2 ring-[#001D3D]/10 bg-white shadow-lg" : isLight ? "border-slate-400 ring-2 ring-slate-100 bg-white" : "border-blue-500/50 ring-1 ring-blue-500/10") : ""
               )}
             >
               <div className="flex items-center gap-4">
@@ -205,17 +233,17 @@ export default function TeacherDashboard() {
                 <div>
                   <h4 className={cn(
                     "font-bold leading-tight tracking-tight",
-                    theme === 'safe' ? "text-[#001D3D]" : "text-white/90"
+                    isLight ? (theme === 'safe' ? "text-[#001D3D]" : "text-slate-900") : "text-white/90"
                   )}>{record.studentName}</h4>
                   <div className="flex items-center gap-3 mt-1">
                     <span className={cn(
                       "text-[10px] font-bold uppercase tracking-[0.2em]",
-                      theme === 'safe' ? "text-[#001D3D]/40" : "text-white/20"
+                      isLight ? "text-slate-500" : "text-white/20"
                     )}>{record.semester}</span>
-                    <span className={cn("h-1 w-1 rounded-full", theme === 'safe' ? "bg-slate-300" : "bg-white/10")}></span>
+                    <span className={cn("h-1 w-1 rounded-full", isLight ? "bg-slate-200" : "bg-white/10")}></span>
                     <span className={cn(
                       "text-[10px] font-bold uppercase tracking-[0.2em]",
-                      theme === 'safe' ? "text-[#001D3D]/40" : "text-white/20"
+                      isLight ? "text-slate-500" : "text-white/20"
                     )}>{record.examination}</span>
                   </div>
                 </div>
@@ -225,13 +253,13 @@ export default function TeacherDashboard() {
                 <div className="text-right">
                   <p className={cn(
                     "text-[9px] uppercase font-bold mb-1 tracking-widest",
-                    theme === 'safe' ? "text-[#003d73]/30" : "text-white/20"
+                    isLight ? "text-slate-400" : "text-white/20"
                   )}>SGPA</p>
                   <span className={cn(
                     "px-2 py-0.5 rounded border text-xs font-mono font-bold",
-                      record.sgpa >= 9 ? (theme === 'safe' ? "bg-[#003d73]/10 text-[#003d73] border-[#003d73]/20" : "bg-brand-primary/10 text-brand-primary border-brand-primary/20") :
-                    record.sgpa >= 8 ? (theme === 'safe' ? "bg-blue-500/5 text-blue-600 border-blue-500/10" : "bg-blue-500/10 text-blue-400 border-blue-500/20") :
-                    (theme === 'safe' ? "bg-amber-500/5 text-amber-600 border-amber-500/10" : "bg-amber-500/10 text-amber-400 border-amber-500/20")
+                      record.sgpa >= 9 ? (isLight && theme === 'safe' ? "bg-[#003d73]/10 text-[#003d73] border-[#003d73]/20" : "bg-brand-primary/10 text-brand-primary border-brand-primary/20") :
+                    record.sgpa >= 8 ? (isLight && theme === 'safe' ? "bg-[#00a6bb]/10 text-[#00a6bb] border-[#00a6bb]/20" : "bg-blue-500/10 text-blue-400 border-blue-500/20") :
+                    (isLight ? "bg-amber-500/5 text-amber-600 border-amber-500/10" : "bg-amber-500/10 text-amber-400 border-amber-500/20")
                   )}>
                     {record.sgpa.toFixed(2)}
                   </span>
@@ -239,25 +267,31 @@ export default function TeacherDashboard() {
                 <div className="text-right hidden sm:block">
                   <p className={cn(
                     "text-[9px] uppercase font-bold mb-1 tracking-widest",
-                    theme === 'safe' ? "text-[#003d73]/30" : "text-white/20"
+                    isLight ? "text-slate-400" : "text-white/20"
                   )}>CGPA</p>
                   <p className={cn(
                     "font-mono text-xs",
-                    theme === 'safe' ? "text-[#003d73]/60" : "text-white/60"
+                    isLight ? "text-slate-900" : "text-white/60"
                   )}>{record.cgpa.toFixed(2)}</p>
                 </div>
                 <ChevronRight className={cn(
-                  "transition-colors",
-                  theme === 'safe' ? "text-slate-200 group-hover:text-[#003d73]" : "text-white/10 group-hover:text-white/40"
+                   "transition-colors",
+                   isLight ? "text-slate-200 hover:text-slate-900" : "text-white/10 hover:text-white/40"
                 )} size={18} />
               </div>
             </motion.div>
           ))}
 
           {filteredRecords.length === 0 && (
-            <div className="bg-brand-surface border border-dashed border-white/10 rounded-3xl p-12 text-center">
-              <FileText className="mx-auto text-white/10 mb-4" size={40} />
-              <p className="text-white/30 text-xs font-bold uppercase tracking-widest">No records matched audit filter</p>
+            <div className={cn(
+              "border border-dashed rounded-3xl p-12 text-center",
+              isLight ? "bg-white border-slate-200" : "bg-brand-surface border-white/10"
+            )}>
+              <FileText className={isLight ? "mx-auto text-slate-300 mb-4" : "mx-auto text-white/10 mb-4"} size={40} />
+              <p className={cn(
+                "text-xs font-bold uppercase tracking-widest",
+                isLight ? "text-slate-400" : "text-white/30"
+              )}>No records matched audit filter</p>
             </div>
           )}
         </div>
@@ -270,23 +304,44 @@ export default function TeacherDashboard() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="bg-brand-surface border border-white/10 rounded-3xl p-6 sticky top-8 shadow-2xl"
+                className={cn(
+                  "border rounded-3xl p-6 sticky top-8 shadow-2xl transition-all duration-500",
+                  isLight ? "bg-white border-slate-100 shadow-sm" : "bg-brand-surface border-white/5"
+                )}
               >
                 <div className="mb-6">
-                  <h3 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Course Audit</h3>
-                  <p className="text-white/30 text-[10px] mt-1 font-mono uppercase tracking-tighter">Granular verification of {selectedRecord.studentName}</p>
+                  <h3 className={cn(
+                    "text-xs font-bold uppercase tracking-[0.2em]",
+                    isLight ? "text-slate-900" : "text-white"
+                  )}>Course Audit</h3>
+                  <p className={cn(
+                    "text-[10px] mt-1 font-mono uppercase tracking-tighter italic",
+                    isLight ? "text-slate-400" : "text-white/30"
+                  )}>Granular verification of {selectedRecord.studentName}</p>
                 </div>
 
                 <div className="space-y-3">
                   {selectedRecord.subjects.map((sub, i) => (
                     <div key={i} className="flex items-center justify-between group">
                       <div className="min-w-0">
-                        <p className="text-[9px] font-bold text-white/20 uppercase truncate pr-2 tracking-tighter">{sub.code}</p>
-                        <p className="text-[11px] font-semibold text-white/70 truncate max-w-[120px]">{sub.name}</p>
+                        <p className={cn(
+                          "text-[9px] font-bold uppercase truncate pr-2 tracking-tighter",
+                          isLight ? "text-slate-400" : "text-white/20"
+                        )}>{sub.code}</p>
+                        <p className={cn(
+                          "text-[11px] font-semibold truncate max-w-[120px]",
+                          isLight ? "text-slate-700" : "text-white/70"
+                        )}>{sub.name}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-mono text-white/20">{sub.credits}Cr</span>
-                        <div className="w-7 h-7 rounded bg-white/5 border border-white/5 flex items-center justify-center font-bold text-white/90 text-[10px] font-mono">
+                        <span className={cn(
+                          "text-[10px] font-mono",
+                          isLight ? "text-slate-300" : "text-white/20"
+                        )}>{sub.credits}Cr</span>
+                        <div className={cn(
+                          "w-7 h-7 rounded border flex items-center justify-center font-bold text-[10px] font-mono",
+                          isLight ? "bg-slate-50 text-slate-900 border-slate-100" : "bg-white/5 border-white/5 text-white/90"
+                        )}>
                           {sub.grade}
                         </div>
                       </div>
@@ -294,28 +349,48 @@ export default function TeacherDashboard() {
                   ))}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-white/5">
+                <div className={cn(
+                  "mt-8 pt-6 border-t",
+                  isLight ? "border-slate-100" : "border-white/5"
+                )}>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-bold text-white/20 tracking-widest uppercase">AUDIT RESULT</span>
+                    <span className={cn(
+                      "text-[10px] font-bold tracking-widest uppercase",
+                      isLight ? "text-slate-400" : "text-white/20"
+                    )}>AUDIT RESULT</span>
                     <span className={cn(
                       "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border",
-                      selectedRecord.verificationStatus === 'verified' ? "bg-brand-primary/5 text-brand-primary border-brand-primary/20" : "bg-red-500/5 text-red-500 border-red-500/20"
+                      selectedRecord.verificationStatus === 'verified' ? (isLight && theme === 'safe' ? "bg-[#00a6bb]/5 text-[#00a6bb] border-[#00a6bb]/20" : "bg-brand-primary/5 text-brand-primary border-brand-primary/20") : "bg-red-500/5 text-red-500 border-red-500/20"
                     )}>
                       {selectedRecord.verificationStatus}
                     </span>
                   </div>
-                  <button className="w-full bg-[#050505] text-white/60 hover:text-white border border-white/10 rounded-xl py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black transition-all">
+                  <button className={cn(
+                    "w-full border rounded-xl py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all",
+                    isLight 
+                      ? "bg-slate-900 text-white border-slate-900 hover:bg-black shadow-lg" 
+                      : "bg-[#050505] text-white/60 hover:text-white border-white/10 hover:bg-black"
+                  )}>
                     <Download size={14} />
                     Export Dossier
                   </button>
                 </div>
               </motion.div>
             ) : (
-              <div className="bg-brand-surface/50 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
-                <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center shadow-sm mb-4 text-white/10">
+              <div className={cn(
+                "border border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[300px] transition-all",
+                isLight ? "bg-white border-slate-200" : "bg-brand-surface/50 border-white/10"
+              )}>
+                <div className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center shadow-sm mb-4",
+                  isLight ? "bg-slate-50 text-slate-400" : "bg-white/5 text-white/10"
+                )}>
                   <FileText size={20} />
                 </div>
-                <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.2em]">Select a record for deep audit</p>
+                <p className={cn(
+                  "text-[10px] font-bold uppercase tracking-[0.2em]",
+                  isLight ? "text-slate-400" : "text-white/20"
+                )}>Select a record for deep audit</p>
               </div>
             )}
           </AnimatePresence>
