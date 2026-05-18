@@ -14,11 +14,16 @@ import {
   Bell,
   GraduationCap,
   Palette,
-  Settings
+  Settings,
+  Cpu
 } from 'lucide-react';
-import StudentDashboard from '../components/StudentDashboard';
-import TeacherDashboard from '../components/TeacherDashboard';
-import MISDashboard from '../components/MISDashboard';
+import { 
+  AuditorOverview, 
+  AuditorUpload, 
+  AuditorHistory, 
+  AuditorReports, 
+  AuditorHelp 
+} from '../components/AuditorComponents';
 import ThemeToggle from '../components/ThemeToggle';
 import ControlPanel from '../components/ControlPanel';
 import { useTheme } from '../contexts/ThemeContext';
@@ -47,9 +52,11 @@ export default function Dashboard() {
   };
 
   const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/', roles: ['student', 'teacher', 'mis'] },
-    { name: 'Student Records', icon: Users, path: '/students', roles: ['teacher', 'mis'] },
-    { name: 'Reports', icon: ShieldCheck, path: '/reports', roles: ['mis'] },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: ['student', 'teacher', 'mis'] },
+    { name: 'Upload Paper', icon: FileUp, path: '/dashboard/upload', roles: ['teacher', 'mis'] },
+    { name: 'Audit History', icon: History, path: '/dashboard/history', roles: ['student', 'teacher', 'mis'] },
+    { name: 'Reports', icon: ShieldCheck, path: '/dashboard/reports', roles: ['mis'] },
+    { name: 'Help Center', icon: Bell, path: '/dashboard/help', roles: ['student', 'teacher', 'mis'] },
   ];
 
   const filteredMenuItems = menuItems.filter(item => item.roles.includes(profile?.role || ''));
@@ -79,40 +86,20 @@ export default function Dashboard() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="flex h-full flex-col">
-          <div className={cn(
-            "flex h-24 items-center px-6 border-b transition-colors duration-500",
+          <Link to="/" className={cn(
+            "flex h-24 items-center px-6 border-b transition-all duration-500 hover:bg-slate-50 group",
             isLight ? "border-slate-50 bg-white" : "border-white/5"
           )}>
-            {isLight && theme === 'safe' ? (
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#001D3D] rounded-xl flex items-center justify-center p-1.5 text-white shadow-lg">
-                   <div className="flex flex-col items-center leading-[0.8]">
-                      <span className="text-[7px] font-bold">GET</span>
-                      <span className="text-[10px] font-black tracking-tighter">SAFE</span>
-                      <span className="text-[7px] font-bold">ONLINE</span>
-                   </div>
-                </div>
-                <div className="flex flex-col leading-none">
-                  <span className="text-[12px] font-black text-[#001D3D] tracking-tight">ACADEMIC</span>
-                  <span className="text-[12px] font-bold text-[#001D3D]/80 italic font-serif">HUB</span>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
+                <Cpu size={22} />
               </div>
-            ) : (
-              <>
-                <div className={cn(
-                  "w-8 h-8 rounded flex items-center justify-center text-black font-bold mr-3 transition-all duration-300",
-                  theme === 'cyber' ? "bg-brand-primary neon-border" : 
-                  theme === 'swiss' ? "bg-white scale-110 -rotate-3" :
-                  isLight ? "bg-slate-900 text-white" :
-                  "bg-brand-primary"
-                )}>G</div>
-                <span className={cn(
-                  "text-xl tracking-tighter uppercase font-black",
-                  isLight ? "text-slate-900" : "text-white"
-                )}>Academic <span className={cn(isLight && theme === 'safe' ? "text-[#001D3D]" : (isLight ? "text-slate-500" : "text-[#00a6bb]"))}>Hub</span></span>
-              </>
-            )}
-          </div>
+              <div className="flex flex-col leading-none">
+                <span className="text-[13px] font-black text-slate-900 tracking-tight">EXAM OCR</span>
+                <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest">Auditor</span>
+              </div>
+            </div>
+          </Link>
 
           <p className={cn(
             "px-6 mt-6 text-[10px] uppercase tracking-[0.2em] mb-2",
@@ -324,13 +311,11 @@ export default function Dashboard() {
           theme === 'safe' ? "text-[#001D3D]" : "text-inherit"
         )}>
           <Routes>
-            <Route path="/" element={
-              profile?.role === 'student' ? <StudentDashboard /> :
-              profile?.role === 'teacher' ? <TeacherDashboard /> :
-              <MISDashboard />
-            } />
-            <Route path="/students" element={<TeacherDashboard />} />
-            <Route path="/reports" element={<MISDashboard />} />
+            <Route path="/" element={<AuditorOverview />} />
+            <Route path="/upload" element={<AuditorUpload />} />
+            <Route path="/history" element={<AuditorHistory />} />
+            <Route path="/reports" element={<AuditorReports />} />
+            <Route path="/help" element={<AuditorHelp />} />
           </Routes>
         </main>
 

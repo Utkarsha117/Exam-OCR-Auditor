@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
         toast.success('Welcome back!');
-        navigate('/');
+        navigate('/dashboard');
       } else {
         if (!otpStep) {
           setOtpStep(true);
@@ -70,7 +70,7 @@ export default function LoginPage() {
           handleFirestoreError(err, OperationType.CREATE, 'users/' + user.uid);
         }
         toast.success('Account created successfully!');
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error: any) {
       toast.error(error.message);

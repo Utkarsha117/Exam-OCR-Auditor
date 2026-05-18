@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import { Toaster } from 'react-hot-toast';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -27,9 +28,10 @@ export default function App() {
         <Router>
           <div className="min-h-screen bg-brand-bg text-inherit font-sans selection:bg-brand-primary/20 selection:text-brand-primary transition-colors duration-300">
             <Routes>
+              <Route path="/" element={<Home />} />
               <Route path="/login" element={<LoginPage />} />
               <Route 
-                path="/*" 
+                path="/dashboard/*" 
                 element={
                   <ProtectedRoute>
                     <Dashboard />
